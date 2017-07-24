@@ -1,11 +1,11 @@
 from time import sleep
 import random as r
 
-MAX_SCREEN_WIDTH = 40
-MAX_WIDTH = 11 #largeur max du couloir
-MIN_WIDTH = 2 #largeur min du couloir
-STEP_LENGTH = 0.025 #durée pause entre dessin d'une ligne en seconde
-ITERATION_NUMBER = 500
+MAX_SCREEN_WIDTH = 100
+MAX_WIDTH = 15 #largeur max du couloir
+MIN_WIDTH = 3 #largeur min du couloir
+STEP_LENGTH = 0.15 #durée pause entre dessin d'une ligne en seconde
+ITERATION_NUMBER = 1000
 #STEP_LENGTH = 0.05 #durée pause entre dessin d'une ligne en seconde
 #ITERATION_NUMBER = 300
 
