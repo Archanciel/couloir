@@ -1,11 +1,15 @@
 import queue
 from time import sleep
+import random as r
 
 q = queue.Queue()
 
 q.put('a')
 q.put('b')
 q.put('c')
+
+MAX_SEGMENT_WIDTH = 40
+MIN_SEGMENT_WIDTH = 3
 
 while not q.empty():
     print(q.get())
@@ -71,12 +75,23 @@ class Segment():
             step.size = self.width
                 
         
-    def changeWidth(self, width):
-        widthOffset = self.__width - width
-        widthIncrement = 1 if widthOffset > 0 else -1
-        
-        for i in range(abs(widthOffset)):
-            self.__width += widthIncrement
+    def changeWidth(self, newWidth):
+        if newWidth > MAX_SEGMENT_WIDTH:
+            newWidth = MAX_SEGMENT_WIDTH
+        elif newWidth < MIN_SEGMENT_WIDTH:
+            newWidth = MIN_SEGMENT_WIDTH
+
+        changeIncrement = 0
+
+        if newWidth > self.__width:
+            changeIncrement = 1
+        elif newWidth < self.__width:
+            changeIncrement = -1
+
+        incrementNumber = abs(newWidth - self.__width)
+
+        for i in range(incrementNumber):
+            self.__width += changeIncrement
         
             for step in self.steps:
                 step.size = self.width
@@ -97,7 +112,7 @@ lst = LeftStep()
 rst = RightStep()
 vst = VerStep()
 
-seg = Segment(15, 7, 0.03)
+seg = Segment(15, 7, 0.01)
 seg.addStep(vst)
 seg.addStep(lst)
 seg.addStep(lst)
@@ -115,13 +130,11 @@ seg.addStep(rst)
 seg.addStep(rst)
 seg.addStep(rst)
 
-for i in range(4):
-    seg.draw()
-    if i % 2 == 0:
-        seg.changeWidth(7)
-    else:
-        seg.changeWidth(3)
-        
+seg.draw()
+
+for i in range(20):
+    seg.changeWidth(r.randint(1, 45))
+
         
 
 
