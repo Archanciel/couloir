@@ -8,8 +8,9 @@ q.put('a')
 q.put('b')
 q.put('c')
 
-MAX_SEGMENT_WIDTH = 40
+MAX_SEGMENT_WIDTH = 30
 MIN_SEGMENT_WIDTH = 3
+SLEEP_TIME_SEC = 0.04
 
 while not q.empty():
     print(q.get())
@@ -112,7 +113,7 @@ lst = LeftStep()
 rst = RightStep()
 vst = VerStep()
 
-seg = Segment(15, 7, 0.01)
+seg = Segment(10, 7, SLEEP_TIME_SEC)
 seg.addStep(vst)
 seg.addStep(lst)
 seg.addStep(lst)
@@ -132,8 +133,8 @@ seg.addStep(rst)
 
 seg.draw()
 
-for i in range(20):
-    seg.changeWidth(r.randint(1, 45))
+for i in range(15):
+    seg.changeWidth(r.randint(0, 35))
 
         
 
