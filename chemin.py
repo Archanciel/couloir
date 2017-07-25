@@ -10,7 +10,7 @@ q.put('c')
 
 MAX_SEGMENT_WIDTH = 30
 MIN_SEGMENT_WIDTH = 3
-SLEEP_TIME_SEC = 0.04
+SLEEP_TIME_SEC = 0.05
 
 while not q.empty():
     print(q.get())
@@ -76,23 +76,23 @@ class Segment():
             step.size = self.width
                 
         
-    def changeWidth(self, newWidth):
+    def changePosAndWidth(self, newLeftPos, newWidth):
         if newWidth > MAX_SEGMENT_WIDTH:
             newWidth = MAX_SEGMENT_WIDTH
         elif newWidth < MIN_SEGMENT_WIDTH:
             newWidth = MIN_SEGMENT_WIDTH
 
-        changeIncrement = 0
+        changeWidthIncrement = 0
 
         if newWidth > self.__width:
-            changeIncrement = 1
+            changeWidthIncrement = 1
         elif newWidth < self.__width:
-            changeIncrement = -1
+            changeWidthIncrement = -1
 
         incrementNumber = abs(newWidth - self.__width)
 
         for i in range(incrementNumber):
-            self.__width += changeIncrement
+            self.__width += changeWidthIncrement
         
             for step in self.steps:
                 step.size = self.width
@@ -130,11 +130,35 @@ seg.addStep(rst)
 seg.addStep(rst)
 seg.addStep(rst)
 seg.addStep(rst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(rst)
+seg.addStep(rst)
+seg.addStep(rst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(rst)
+seg.addStep(rst)
+seg.addStep(rst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(rst)
+seg.addStep(rst)
+seg.addStep(rst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(lst)
+seg.addStep(rst)
+seg.addStep(rst)
+seg.addStep(rst)
 
 seg.draw()
 
 for i in range(15):
-    seg.changeWidth(r.randint(0, 35))
+    seg.changePosAndWidth(0, r.randint(0, 35))
 
         
 
