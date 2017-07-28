@@ -16,15 +16,22 @@ while not q.empty():
     print(q.get())
 
 class Step:
-    def __init__(self, leftWall, rightWall, offset, size = 1):
+    def __init__(self, leftWall, rightWall, size = 1):
         self.size = size
         self.leftWall = leftWall
         self.rightWall = rightWall
-        self.offset = offset
 
     def getLine(self):
         return self.leftWall + self.__fillSpaces() + self.rightWall
-    
+
+    def calculateOffset(self, previousStep):
+        '''
+        Calcule le décalage par rapport à previousStep
+        :param previousStep:
+        :return: 0, 1 ou -1
+        '''
+        raise NotImplementedError("Please Implement this method")
+
     def __fillSpaces(self):
         s = ""
         
@@ -33,17 +40,57 @@ class Step:
             
         return s
 
-class VerStep(Step):
-    def __init__(self, size = 1):
-        super().__init__('|', '|', 0, size)
-        
 class LeftStep(Step):
     def __init__(self, size = 1):
-        super().__init__('/', '/', -1, size)
-        
+        super().__init__('/', '/', size)
+
+    def calculateOffset(self, previousStep):
+        if previousStep.__class__.__name__ == RightStep.__name__:
+            return 0
+        elif previousStep.__class__.__name__ == LeftStep.__name__:
+            return -1
+        else:
+            raise TypeError("Invalid class " + previousStep.__class__.__name__ + " encountered")
+
 class RightStep(Step):
     def __init__(self, size = 1):
-        super().__init__("\\", "\\", 1, size)
+        super().__init__("\\", "\\", size)
+
+    def calculateOffset(self, previousStep):
+        if previousStep.__class__.__name__ == RightStep.__name__:
+            return 1
+        elif previousStep.__class__.__name__ == LeftStep.__name__:
+            return 0
+
+class PositionedStep:
+    '''
+    Container class qui dénote une Step positionnée en fonction de la Step qui la précède.
+
+    Contient une Step et son offset tel qu'il a été calculé lors de l'ajout de la PositionedStep
+    au Segment.
+
+    En effet, sans cette classe, le Segment quui ne contiendrait que des Step ajoutées sans prendre
+    en compte la Step qui la précède aurait cette allure:
+
+         /   /
+        /   /
+       \   \
+        \   \
+         /   /
+        /   /
+
+    Avec cette classe:
+    
+         /   /      offset = 0
+        /   /       offset = 0
+        \   \       offset = 1
+         \   \      offset = 0
+         /   /      offset = -1
+        /   /       offset = 0
+    '''
+    def __init__(self, offset, step):
+        self.offset = offset
+        self.step = step
 
 class Segment():
     def __init__(self, leftPos, width, sleepTime = 0.1):
@@ -54,13 +101,22 @@ class Segment():
         
     def addStep(self, step):
         step.size = self.width
-        self.steps.append(step)
+
+        if len(self.steps) > 0:
+            previousPositionedStep = self.steps[-1]
+            offset = previousPositionedStep.step.calculateOffset(step)
+        else:
+            offset = 0
+
+        self.steps.append(PositionedStep(offset, step))
         
     def draw(self):
         self.currPos = self.leftPos
         
-        for step in self.steps:
-            filler = self.__filler(step.offset)
+        for positionedStep in self.steps:
+            offset = positionedStep.offset
+            step = positionedStep.step
+            filler = self.__filler(offset)
             print(filler + step.getLine())
             sleep(self.sleepTime)
      
@@ -94,7 +150,8 @@ class Segment():
         for i in range(incrementNumber):
             self.__width += changeWidthIncrement
         
-            for step in self.steps:
+            for positionedStep in self.steps:
+                step = positionedStep.step
                 step.size = self.width
                 
             self.draw()
@@ -108,24 +165,18 @@ class Segment():
             
         return s
         
-vst = VerStep()
 lst = LeftStep()
 rst = RightStep()
-vst = VerStep()
 
 seg = Segment(10, 7, SLEEP_TIME_SEC)
-seg.addStep(vst)
 seg.addStep(lst)
 seg.addStep(lst)
-seg.addStep(vst)
 seg.addStep(rst)
 seg.addStep(rst)
-seg.addStep(vst)
 seg.addStep(lst)
 seg.addStep(lst)
 seg.addStep(lst)
 seg.addStep(lst)
-seg.addStep(vst)
 seg.addStep(rst)
 seg.addStep(rst)
 seg.addStep(rst)
@@ -157,7 +208,7 @@ seg.addStep(rst)
 
 seg.draw()
 
-for i in range(15):
+for i in range(1):
     seg.changePosAndWidth(0, r.randint(0, 35))
 
         
