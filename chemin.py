@@ -80,7 +80,7 @@ class PositionedStep:
         /   /
 
     Avec cette classe:
-    
+
          /   /      offset = 0
         /   /       offset = 0
         \   \       offset = 1
@@ -133,6 +133,24 @@ class Segment():
                 
         
     def changePosAndWidth(self, newLeftPos, newWidth):
+        '''
+            \   \	5
+            /   /	5
+            \  /	4
+             \ \	3
+              \ \	3
+              /  \	4
+             /   /	5
+            /   /	5
+           /   /	5
+          /    \	6
+         /      \	8
+         \       \	9
+          \       \	9
+        :param newLeftPos:
+        :param newWidth:
+        :return:
+        '''
         if newWidth > MAX_SEGMENT_WIDTH:
             newWidth = MAX_SEGMENT_WIDTH
         elif newWidth < MIN_SEGMENT_WIDTH:
@@ -208,8 +226,8 @@ seg.addStep(rst)
 
 seg.draw()
 
-for i in range(1):
-    seg.changePosAndWidth(0, r.randint(0, 35))
+#seg.changePosAndWidth(0, r.randint(0, 35))
+seg.changePosAndWidth(0, 6)
 
         
 
