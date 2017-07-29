@@ -1,21 +1,19 @@
-import queue
 from time import sleep
-import random as r
-
-q = queue.Queue()
-
-q.put('a')
-q.put('b')
-q.put('c')
 
 MAX_SEGMENT_WIDTH = 30
 MIN_SEGMENT_WIDTH = 3
 SLEEP_TIME_SEC = 0.05
 
-while not q.empty():
-    print(q.get())
-
 class Step:
+    @staticmethod
+    def createStep(stepType, stepSize):
+        if stepType == 'r':
+            return LeftStep(stepSize)
+        elif stepType == 'l':
+            return RightStep(stepSize)
+        else:
+            raise ValueError("Illegal stepType " + stepType + " encountered")
+
     def __init__(self, leftWall, rightWall, size = 1):
         self.size = size
         self.leftWall = leftWall
@@ -134,6 +132,7 @@ class Segment():
         
     def changePosAndWidth(self, newLeftPos, newWidth):
         '''
+                  width (total, including walls)
             \   \	5
             /   /	5
             \  /	4
@@ -182,55 +181,55 @@ class Segment():
             s += " "
             
         return s
-        
-lst = LeftStep()
-rst = RightStep()
 
-seg = Segment(10, 7, SLEEP_TIME_SEC)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(lst)
-seg.addStep(rst)
-seg.addStep(rst)
-seg.addStep(rst)
+import random as r
 
-seg.draw()
+def test():
+    lst = LeftStep()
+    rst = RightStep()
 
-#seg.changePosAndWidth(0, r.randint(0, 35))
-seg.changePosAndWidth(0, 6)
+    seg = Segment(10, 7, SLEEP_TIME_SEC)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
 
-        
+    seg.draw()
 
+    #seg.changePosAndWidth(0, r.randint(0, 35))
+    seg.changePosAndWidth(0, 6)
 
-        
-        
+if __name__ == '__main__':
+    test()
