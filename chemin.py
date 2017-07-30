@@ -2,7 +2,7 @@ from time import sleep
 
 MAX_SEGMENT_WIDTH = 30
 MIN_SEGMENT_WIDTH = 3
-SLEEP_TIME_SEC = 0.05
+SLEEP_TIME_SEC = 0.03
 
 class Step:
     @staticmethod
@@ -28,7 +28,10 @@ class Step:
         :param previousStep:
         :return: 0, 1 ou -1
         '''
-        raise NotImplementedError("Please Implement this method")
+        raise NotImplementedError("Please implement this method")
+
+    def needLeftWallCorrection(self, previousStep, changeWidthIncrement):
+        return False
 
     def __fillSpaces(self):
         s = ""
@@ -49,6 +52,12 @@ class LeftStep(Step):
             return -1
         else:
             raise TypeError("Invalid class " + previousStep.__class__.__name__ + " encountered")
+
+    def needLeftWallCorrection(self, previousStep, changeWidthIncrement):
+        if changeWidthIncrement < 0 and previousStep.__class__.__name__ == RightStep.__name__:
+            return True
+        else:
+            return False
 
 class RightStep(Step):
     def __init__(self, size = 1):
@@ -108,16 +117,35 @@ class Segment():
 
         self.steps.append(PositionedStep(offset, step))
         
-    def draw(self):
+    def draw(self, firstStepNeedLeftWallCorrection = False):
         self.currPos = self.leftPos
-        
-        for positionedStep in self.steps:
-            offset = positionedStep.offset
-            step = positionedStep.step
+
+        if firstStepNeedLeftWallCorrection:
+            firstPositionedStep = self.steps[0]
+            offset = firstPositionedStep.offset + 1
+            firstStep = firstPositionedStep.step
             filler = self.__filler(offset)
-            print(filler + step.getLine())
+            print(filler + self._replace_last(firstStep.getLine().replace('/','\\'), '\\', ' /'))
             sleep(self.sleepTime)
-     
+            self.leftPos += 2
+            self.currPos = self.leftPos
+            for positionedStep in self.steps[1:]:
+                self._drawStep(positionedStep)
+        else:
+            for positionedStep in self.steps:
+                self._drawStep(positionedStep)
+
+    def _replace_last(self, source_string, replace_what, replace_with):
+        head, _sep, tail = source_string.rpartition(replace_what)
+        return head + replace_with + tail
+
+    def _drawStep(self, positionedStep):
+        offset = positionedStep.offset
+        step = positionedStep.step
+        filler = self.__filler(offset)
+        print(filler + step.getLine())
+        sleep(self.sleepTime)
+
     @property
     def width(self):
         return self.__width
@@ -128,8 +156,7 @@ class Segment():
         
         for step in self.steps:
             step.size = self.width
-                
-        
+
     def changePosAndWidth(self, newLeftPos, newWidth):
         '''
                   width (total, including walls)
@@ -165,14 +192,25 @@ class Segment():
         incrementNumber = abs(newWidth - self.__width)
 
         for i in range(incrementNumber):
+            lastPositionedStep = self.steps[-1]
+            firstPositionedStep = self.steps[0]
+            firstStepNeedLeftWallCorrection = False
+
+            if firstPositionedStep.step.needLeftWallCorrection(lastPositionedStep.step, changeWidthIncrement):
+                changeWidthIncrement -= 1
+                firstStepNeedLeftWallCorrection = True
+
             self.__width += changeWidthIncrement
-        
+
             for positionedStep in self.steps:
                 step = positionedStep.step
-                step.size = self.width
-                
-            self.draw()
-                       
+                step.size = self.__width
+
+            lastPositionedStep = self.steps[-1]
+            firstPositionedStep = self.steps[0]
+
+            self.draw(firstStepNeedLeftWallCorrection)
+
     def __filler(self, offset):
         s = ""
         self.currPos += offset
