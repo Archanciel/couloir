@@ -86,6 +86,6 @@ class Driver:
         self.segment.draw()
 
 #driver = Driver(StringGeoMap("Tamara, Walter, Béatrice. Jean-Pierre"))
-driver = Driver(StringGeoMap("Tamara, Walter, Béatrice. Jean-Pierre"))
+driver = Driver(StringGeoMap("Tamara, adadadadad, Walter, Béatrice. Jean-Pierre, adadadadad"))
 driver.drive()
 
