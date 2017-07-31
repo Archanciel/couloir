@@ -39,10 +39,10 @@ class Step:
         raise NotImplementedError("Please implement this method")
 
     def needRightToLeftWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
-        return WallCorrection.NONE
+        return False
 
     def needLeftToRightWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
-        return WallCorrection.NONE
+        return False
 
     def __fillSpaces(self):
         s = ""
@@ -79,9 +79,9 @@ class LeftStep(Step):
         :return:
         '''
         if changeWidthIncrement < 0 and previousStep.__class__.__name__ == RightStep.__name__:
-            return WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR
+            return True
         else:
-            return WallCorrection.NONE
+            return False
 
 class RightStep(Step):
     def __init__(self, size = 1):
@@ -108,9 +108,9 @@ class RightStep(Step):
         :return:
         '''
         if changeWidthIncrement < 0 and previousStep.__class__.__name__ == LeftStep.__name__:
-            return WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR
+            return True
         else:
-            return WallCorrection.NONE
+            return False
 
 class PositionedStep:
     '''
@@ -251,15 +251,14 @@ next steps   /     /
             rightToLeftWidthDecrWallCorrection = False
             leftToRightWidthDecrWallCorrection = False
 
-            wallCorrection = firstPositionedStep.step.needRightToLeftWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement)
+            wallCorrection = WallCorrection.NONE
 
-            if wallCorrection == WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR:
+            if firstPositionedStep.step.needRightToLeftWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
+                wallCorrection = WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR
                 changeWidthIncrement -= 1
-            else:
-                wallCorrection = firstPositionedStep.step.needLeftToRightWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement)
-
-                if wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR:
-                    changeWidthIncrement -= 1
+            elif firstPositionedStep.step.needLeftToRightWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
+                wallCorrection = WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR
+                changeWidthIncrement -= 1
 
             self.__width += changeWidthIncrement
 
