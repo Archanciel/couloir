@@ -1,8 +1,16 @@
 from time import sleep
+from enum import Enum
 
 MAX_SEGMENT_WIDTH = 30
 MIN_SEGMENT_WIDTH = 3
 SLEEP_TIME_SEC = 0.03
+
+class WallCorrection(Enum):
+    RIGHT_TO_LEFT_WIDTH_DECR = 1
+    LEFT_TO_RIGHT_WIDTH_DECR = 2
+    RIGHT_TO_LEFT_WIDTH_INCR = 3
+    LEFT_TO_RIGHT_WIDTH_INCR = 4
+    NONE = 5
 
 class Step:
     @staticmethod
@@ -31,7 +39,10 @@ class Step:
         raise NotImplementedError("Please implement this method")
 
     def needRightToLeftWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
-        return False
+        return WallCorrection.NONE
+
+    def needLeftToRightWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
+        return WallCorrection.NONE
 
     def __fillSpaces(self):
         s = ""
@@ -62,15 +73,15 @@ class LeftStep(Step):
         last step   \       \   RightStep
         first step  /      /    LeftStep
         next steps /      /
-        
+
         :param previousStep:
         :param changeWidthIncrement:
         :return:
         '''
         if changeWidthIncrement < 0 and previousStep.__class__.__name__ == RightStep.__name__:
-            return True
+            return WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR
         else:
-            return False
+            return WallCorrection.NONE
 
 class RightStep(Step):
     def __init__(self, size = 1):
@@ -81,6 +92,25 @@ class RightStep(Step):
             return 1
         elif previousStep.__class__.__name__ == LeftStep.__name__:
             return 0
+
+    def needLeftToRightWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
+        '''
+        Dans la configuration ci-dessous, nous avons un changement de direction de gauche
+        à droite couplé à une diminution de la largeur du chemin de 1. Une correction
+        sera nécessaire, comme on peut le voir !
+
+         /       /		last step == LeftStep
+          \      \		first step == RightStep
+           \      \
+
+        :param previousStep:
+        :param changeWidthIncrement:
+        :return:
+        '''
+        if changeWidthIncrement < 0 and previousStep.__class__.__name__ == LeftStep.__name__:
+            return WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR
+        else:
+            return WallCorrection.NONE
 
 class PositionedStep:
     '''
@@ -130,10 +160,10 @@ class Segment():
 
         self.steps.append(PositionedStep(offset, step))
         
-    def draw(self, rightToLeftWidthDecrWallCorrection = False):
+    def draw(self, wallCorrection = WallCorrection.NONE):
         self.currPos = self.leftPos
 
-        if rightToLeftWidthDecrWallCorrection:
+        if wallCorrection == WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR:
             '''
             without correction:
 last step   \       \
@@ -219,10 +249,17 @@ next steps   /     /
             lastPositionedStep = self.steps[-1]
             firstPositionedStep = self.steps[0]
             rightToLeftWidthDecrWallCorrection = False
+            leftToRightWidthDecrWallCorrection = False
 
-            if firstPositionedStep.step.needRightToLeftWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
+            wallCorrection = firstPositionedStep.step.needRightToLeftWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement)
+
+            if wallCorrection == WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR:
                 changeWidthIncrement -= 1
-                rightToLeftWidthDecrWallCorrection = True
+            else:
+                wallCorrection = firstPositionedStep.step.needLeftToRightWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement)
+
+                if wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR:
+                    changeWidthIncrement -= 1
 
             self.__width += changeWidthIncrement
 
@@ -233,7 +270,7 @@ next steps   /     /
             lastPositionedStep = self.steps[-1]
             firstPositionedStep = self.steps[0]
 
-            self.draw(rightToLeftWidthDecrWallCorrection)
+            self.draw(wallCorrection)
 
     def __filler(self, offset):
         s = ""
