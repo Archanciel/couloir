@@ -30,7 +30,7 @@ class Step:
         '''
         raise NotImplementedError("Please implement this method")
 
-    def needLeftWallCorrection(self, previousStep, changeWidthIncrement):
+    def needRightToLeftWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
         return False
 
     def __fillSpaces(self):
@@ -53,7 +53,20 @@ class LeftStep(Step):
         else:
             raise TypeError("Invalid class " + previousStep.__class__.__name__ + " encountered")
 
-    def needLeftWallCorrection(self, previousStep, changeWidthIncrement):
+    def needRightToLeftWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
+        '''
+        Dans la configuration ci-dessous, nous avons un changement de direction de droite
+        à gauche couplé à une diminution de la largeur du chemin de 1. Une correction
+        sera nécessaire, comme on peut le voir !
+
+        last step   \       \   RightStep
+        first step  /      /    LeftStep
+        next steps /      /
+        
+        :param previousStep:
+        :param changeWidthIncrement:
+        :return:
+        '''
         if changeWidthIncrement < 0 and previousStep.__class__.__name__ == RightStep.__name__:
             return True
         else:
@@ -117,10 +130,21 @@ class Segment():
 
         self.steps.append(PositionedStep(offset, step))
         
-    def draw(self, firstStepNeedLeftWallCorrection = False):
+    def draw(self, rightToLeftWidthDecrWallCorrection = False):
         self.currPos = self.leftPos
 
-        if firstStepNeedLeftWallCorrection:
+        if rightToLeftWidthDecrWallCorrection:
+            '''
+            without correction:
+last step   \       \
+first step  /      /
+next steps /      /
+
+            with correction:
+last step   \       \
+first step   \      /
+next steps   /     /
+            '''
             firstPositionedStep = self.steps[0]
             offset = firstPositionedStep.offset + 1
             firstStep = firstPositionedStep.step
@@ -194,11 +218,11 @@ class Segment():
         for i in range(incrementNumber):
             lastPositionedStep = self.steps[-1]
             firstPositionedStep = self.steps[0]
-            firstStepNeedLeftWallCorrection = False
+            rightToLeftWidthDecrWallCorrection = False
 
-            if firstPositionedStep.step.needLeftWallCorrection(lastPositionedStep.step, changeWidthIncrement):
+            if firstPositionedStep.step.needRightToLeftWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
                 changeWidthIncrement -= 1
-                firstStepNeedLeftWallCorrection = True
+                rightToLeftWidthDecrWallCorrection = True
 
             self.__width += changeWidthIncrement
 
@@ -209,7 +233,7 @@ class Segment():
             lastPositionedStep = self.steps[-1]
             firstPositionedStep = self.steps[0]
 
-            self.draw(firstStepNeedLeftWallCorrection)
+            self.draw(rightToLeftWidthDecrWallCorrection)
 
     def __filler(self, offset):
         s = ""
