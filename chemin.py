@@ -165,26 +165,41 @@ class Segment():
 
         if wallCorrection == WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR:
             '''
-            without correction:
-last step   \       \
-first step  /      /
-next steps /      /
-
-            with correction:
-last step   \       \
-first step   \      /
-next steps   /     /
+              \       \	9	last step
+              /      /	8	first step
+             /      /	8
+                        if lst step == right et first step == left and ch width incr == -1
+              \       \	9   last step
+               \      /	8	first step: repl first '/' by ' \',
+               /     /	7	reduce all further steps width by 1
             '''
             firstPositionedStep = self.steps[0]
-            offset = firstPositionedStep.offset + 1
+
+            #repl first '/' by ' \'
+            filler = self.__filler(firstPositionedStep.offset + 1)
             firstStep = firstPositionedStep.step
-            filler = self.__filler(offset)
-            print(filler + self._replace_last(firstStep.getLine().replace('/','\\'), '\\', ' /'))
+            firstStepChangedLeftWall = firstStep.getLine().replace('/', '\\',1)
+
+            #and now shift right wall
+            firstStepChangedLeftAndRightWall = self._replace_last(firstStepChangedLeftWall, '/', ' /')
+
+            print(filler + firstStepChangedLeftAndRightWall)
             sleep(self.sleepTime)
             self.leftPos += 2
             self.currPos = self.leftPos
+
             for positionedStep in self.steps[1:]:
                 self._drawStep(positionedStep)
+        elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR:
+            '''
+             /       /	9	last step
+              \      \	8	first step
+               \      \
+                        if lst step == left et first step == right and ch width incr == -1
+             /       /	9	last step
+             \      /	8	first step: decr curr (and further) offset by 1, repl last \ by / for first step
+              \     \	7	reduce all further steps width by 1
+            '''
         else:
             for positionedStep in self.steps:
                 self._drawStep(positionedStep)
