@@ -41,6 +41,9 @@ class Step:
     def needRightToLeftWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
         return False
 
+    def needRightToLeftWidthIncrWallCorrection(self, previousStep, changeWidthIncrement):
+        return False
+
     def needLeftToRightWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
         return False
 
@@ -79,6 +82,25 @@ class LeftStep(Step):
         :return:
         '''
         if changeWidthIncrement < 0 and previousStep.__class__.__name__ == RightStep.__name__:
+            return True
+        else:
+            return False
+
+    def needRightToLeftWidthIncrWallCorrection(self, previousStep, changeWidthIncrement):
+        '''
+        Dans la configuration ci-dessous, nous avons un changement de direction de droite
+        à gauche couplé à une augmentation de la largeur du chemin de 1. Une correction
+        sera nécessaire, comme on peut le voir !
+
+        last step   \      \   RightStep
+        first step  /       /  LeftStep
+        next steps /       /
+
+        :param previousStep:
+        :param changeWidthIncrement:
+        :return:
+        '''
+        if changeWidthIncrement > 0 and previousStep.__class__.__name__ == RightStep.__name__:
             return True
         else:
             return False
@@ -190,6 +212,16 @@ class Segment():
 
             for positionedStep in self.steps[1:]:
                 self._drawStep(positionedStep)
+        elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_INCR:
+            '''
+              \      \
+              /        /
+             /        /
+
+              \      \
+              /       \ simply replace ' /' by '\'
+             /        /
+            '''
         elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR:
             '''
              /       /	9	last step
@@ -271,6 +303,9 @@ class Segment():
             if firstPositionedStep.step.needRightToLeftWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
                 wallCorrection = WallCorrection.RIGHT_TO_LEFT_WIDTH_DECR
                 changeWidthIncrement -= 1
+            elif firstPositionedStep.step.needRightToLeftWidthIncrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
+                wallCorrection = WallCorrection.RIGHT_TO_LEFT_WIDTH_INCR
+                changeWidthIncrement += 1
             elif firstPositionedStep.step.needLeftToRightWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
                 wallCorrection = WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR
                 changeWidthIncrement -= 1
@@ -301,7 +336,7 @@ def test():
     lst = LeftStep()
     rst = RightStep()
 
-    seg = Segment(10, 7, SLEEP_TIME_SEC)
+    seg = Segment(10, 6, SLEEP_TIME_SEC)
     seg.addStep(lst)
     seg.addStep(lst)
     seg.addStep(rst)
@@ -342,7 +377,7 @@ def test():
     seg.draw()
 
     #seg.changePosAndWidth(0, r.randint(0, 35))
-    seg.changePosAndWidth(0, 6)
+    seg.changePosAndWidth(0, 7)
 
 if __name__ == '__main__':
     test()
