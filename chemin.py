@@ -196,32 +196,44 @@ class Segment():
                /     /	7	reduce all further steps width by 1
             '''
             firstPositionedStep = self.steps[0]
+            firstStep = firstPositionedStep.step
 
             #repl first '/' by ' \'
             filler = self.__filler(firstPositionedStep.offset + 1)
-            firstStep = firstPositionedStep.step
-            firstStepChangedLeftWall = firstStep.getLine().replace('/', '\\',1)
+            firstStepWidthChangedLeftWall = firstStep.getLine().replace('/', '\\',1)
 
             #and now shift right wall
-            firstStepChangedLeftAndRightWall = self._replace_last(firstStepChangedLeftWall, '/', ' /')
+            firstStepWidthChangedLeftAndRightWall = self._replace_last(firstStepWidthChangedLeftWall, '/', ' /')
 
-            print(filler + firstStepChangedLeftAndRightWall)
+            print(filler + firstStepWidthChangedLeftAndRightWall)
             sleep(self.sleepTime)
             self.leftPos += 2
             self.currPos = self.leftPos
 
             for positionedStep in self.steps[1:]:
                 self._drawStep(positionedStep)
-        elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_INCR:
+        elif wallCorrection == WallCorrection.RIGHT_TO_LEFT_WIDTH_INCR:
             '''
               \      \
               /        /
              /        /
 
               \      \
-              /       \ simply replace ' /' by '\'
+              /       \ simply replace ' /' by '\' in firstStep.getLine()
              /        /
             '''
+            firstPositionedStep = self.steps[0]
+            firstStep = firstPositionedStep.step
+
+            #repl first ' /' by '\'
+            filler = self.__filler(firstPositionedStep.offset)
+            firstStepWidthChangedRightWall = firstStep.getLine().replace(' /', '\\')
+
+            print(filler + firstStepWidthChangedRightWall)
+            sleep(self.sleepTime)
+
+            for positionedStep in self.steps[1:]:
+                self._drawStep(positionedStep)
         elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR:
             '''
              /       /	9	last step
@@ -232,6 +244,11 @@ class Segment():
              \      /	8	first step: decr curr (and further) offset by 1, repl last \ by / for first step
               \     \	7	reduce all further steps width by 1
             '''
+            for positionedStep in self.steps:
+                self._drawStep(positionedStep)
+        elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_INCR:
+            for positionedStep in self.steps:
+                self._drawStep(positionedStep)
         else:
             for positionedStep in self.steps:
                 self._drawStep(positionedStep)
@@ -241,9 +258,8 @@ class Segment():
         return head + replace_with + tail
 
     def _drawStep(self, positionedStep):
-        offset = positionedStep.offset
         step = positionedStep.step
-        filler = self.__filler(offset)
+        filler = self.__filler(positionedStep.offset)
         print(filler + step.getLine())
         sleep(self.sleepTime)
 
@@ -332,11 +348,36 @@ class Segment():
 
 import random as r
 
-def test():
+def testLeftToRightWithWidthInc():
+    leftPos = 10
+
+    startWidth = 6
+    endWidth = 7
+
+    testLeftToRight(endWidth, leftPos, startWidth)
+
+    startWidth = 7
+    endWidth = 6
+
+    testLeftToRight(endWidth, leftPos, startWidth)
+
+    startWidth = 6
+    endWidth = 7
+
+    testRightToLeft(endWidth, leftPos, startWidth)
+
+    startWidth = 7
+    endWidth = 6
+
+    testRightToLeft(endWidth, leftPos, startWidth)
+
+def testLeftToRight(endWidth, leftPos, startWidth):
+    print("LeftToRight testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
+
+    seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
     lst = LeftStep()
     rst = RightStep()
 
-    seg = Segment(10, 6, SLEEP_TIME_SEC)
     seg.addStep(lst)
     seg.addStep(lst)
     seg.addStep(rst)
@@ -373,11 +414,53 @@ def test():
     seg.addStep(rst)
     seg.addStep(rst)
     seg.addStep(rst)
-
     seg.draw()
+    # seg.changePosAndWidth(0, r.randint(0, 35))
+    seg.changePosAndWidth(0, endWidth)
 
-    #seg.changePosAndWidth(0, r.randint(0, 35))
-    seg.changePosAndWidth(0, 7)
+
+def testRightToLeft(endWidth, leftPos, startWidth):
+    print("RightToLeft testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
+
+    seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
+    lst = LeftStep()
+    rst = RightStep()
+
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(rst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.addStep(lst)
+    seg.draw()
+    # seg.changePosAndWidth(0, r.randint(0, 35))
+    seg.changePosAndWidth(0, endWidth)
+
 
 if __name__ == '__main__':
-    test()
+    testLeftToRightWithWidthInc()
