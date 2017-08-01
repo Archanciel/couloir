@@ -125,9 +125,8 @@ class RightStep(Step):
         sera nécessaire, comme on peut le voir !
 
          /       /		last step == LeftStep
-          \      \		first step == RightStep
-           \      \
-
+          \     \		first step == RightStep
+           \     \
         :param previousStep:
         :param changeWidthIncrement:
         :return:
@@ -259,13 +258,13 @@ class Segment():
                 self._drawStep(positionedStep)
         elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR:
             '''
-             /       /	9	last step
-              \      \	8	first step
-               \      \
+            /       /   9	last step == LeftStep
+             \     \		first step == RightStep
+              \     \
                         if lst step == left et first step == right and ch width incr == -1
-             /       /	9	last step
-             \      /	8	first step: decr curr (and further) offset by 1, repl last \ by / for first step
-              \     \	7	reduce all further steps width by 1
+            /       /   9	last step == LeftStep
+             \     \		first step == RightStep
+              \     \
             '''
             for positionedStep in self.steps:
                 self._drawStep(positionedStep)
@@ -399,24 +398,24 @@ def testLeftToRightWithWidthInc():
     startWidth = 6
     endWidth = 7
 
-#    testLeftToRight(endWidth, leftPos, startWidth)
-
-    startWidth = 7
-    endWidth = 6
-
-#    testLeftToRight(endWidth, leftPos, startWidth)
-
-    startWidth = 6
-    endWidth = 7
-
 #    testRightToLeft(endWidth, leftPos, startWidth)
 
     startWidth = 7
     endWidth = 6
 
-    testRightToLeft(endWidth, leftPos, startWidth)
+#    testRightToLeft(endWidth, leftPos, startWidth)
 
-def testLeftToRight(endWidth, leftPos, startWidth):
+    startWidth = 6
+    endWidth = 7
+
+#    testLeftToRight(endWidth, leftPos, startWidth)
+
+    startWidth = 7
+    endWidth = 6
+
+    testLeftToRight(endWidth, leftPos, startWidth)
+
+def testRightToLeft(endWidth, leftPos, startWidth):
     print("LeftToRight testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
 
     seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
@@ -464,7 +463,7 @@ def testLeftToRight(endWidth, leftPos, startWidth):
     seg.changePosAndWidth(0, endWidth)
 
 
-def testRightToLeft(endWidth, leftPos, startWidth):
+def testLeftToRight(endWidth, leftPos, startWidth):
     print("RightToLeft testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
 
     seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
