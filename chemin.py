@@ -47,6 +47,9 @@ class Step:
     def needLeftToRightWidthDecrWallCorrection(self, previousStep, changeWidthIncrement):
         return False
 
+    def needLeftToRightWidthIncrWallCorrection(self, previousStep, changeWidthIncrement):
+        return False
+
     def __fillSpaces(self):
         s = ""
         
@@ -134,6 +137,26 @@ class RightStep(Step):
         else:
             return False
 
+    def needLeftToRightWidthIncrWallCorrection(self, previousStep, changeWidthIncrement):
+        '''
+		Dans la configuration ci-dessous, nous avons un changement de direction de gauche
+		à droite couplé à une augmentation de la largeur du chemin de 1. Une correction
+		sera nécessaire, comme on peut le voir !
+
+         /      /		last step == LeftStep
+          \        \	first step == RightStep
+           \        \
+
+		:param previousStep:
+		:param changeWidthIncrement:
+		:return:
+		'''
+        if changeWidthIncrement > 0 and previousStep.__class__.__name__ == LeftStep.__name__:
+            return True
+        else:
+            return False
+
+
 class PositionedStep:
     '''
     Container class qui dénote une Step positionnée en fonction de la Step qui la précède.
@@ -195,12 +218,12 @@ class Segment():
                \      /	8	first step: repl first '/' by ' \',
                /     /	7	reduce all further steps width by 1
             '''
-            firstPositionedStep = self.steps[0]
-            firstStep = firstPositionedStep.step
+            lastPositionedStep = self.steps[0]
+            lastStep = lastPositionedStep.step
 
             #repl first '/' by ' \'
-            filler = self.__filler(firstPositionedStep.offset + 1)
-            firstStepWidthChangedLeftWall = firstStep.getLine().replace('/', '\\',1)
+            filler = self.__filler(lastPositionedStep.offset + 1)
+            firstStepWidthChangedLeftWall = lastStep.getLine().replace('/', '\\',1)
 
             #and now shift right wall
             firstStepWidthChangedLeftAndRightWall = self._replace_last(firstStepWidthChangedLeftWall, '/', ' /')
@@ -222,12 +245,12 @@ class Segment():
               /       \ simply replace ' /' by '\' in firstStep.getLine()
              /        /
             '''
-            firstPositionedStep = self.steps[0]
-            firstStep = firstPositionedStep.step
+            lastPositionedStep = self.steps[0]
+            lastStep = lastPositionedStep.step
 
             #repl first ' /' by '\'
-            filler = self.__filler(firstPositionedStep.offset)
-            firstStepWidthChangedRightWall = firstStep.getLine().replace(' /', '\\')
+            filler = self.__filler(lastPositionedStep.offset)
+            firstStepWidthChangedRightWall = lastStep.getLine().replace(' /', '\\')
 
             print(filler + firstStepWidthChangedRightWall)
             sleep(self.sleepTime)
@@ -247,6 +270,28 @@ class Segment():
             for positionedStep in self.steps:
                 self._drawStep(positionedStep)
         elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_INCR:
+            '''
+             /      /       8	last step
+              \        \    10  first step
+               \        \
+                            if lst step == left et first step == right and ch width incr == 1
+             /      /       8	last step
+            /       \	    9   inserted step == last step with left wall ' /' replaced by '\', decr curr offset by 1
+            \        \      10  first step: decr curr (and further) offset by 2
+             \        \
+            '''
+            lastPositionedStep = self.steps[-1]
+            lastStep = lastPositionedStep.step
+
+            #insert step == last step with left wall ' /' replaced by '\', decr curr offset by 1
+            insertedStepLine = self._replace_last(lastStep.getLine(),' /', '\\')
+            filler = self.__filler(lastPositionedStep.offset - 1)
+            print(filler + insertedStepLine)
+            sleep(self.sleepTime)
+
+            self.leftPos -= 2
+            self.currPos = self.leftPos
+
             for positionedStep in self.steps:
                 self._drawStep(positionedStep)
         else:
@@ -325,15 +370,15 @@ class Segment():
             elif firstPositionedStep.step.needLeftToRightWidthDecrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
                 wallCorrection = WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR
                 changeWidthIncrement -= 1
+            elif firstPositionedStep.step.needLeftToRightWidthIncrWallCorrection(lastPositionedStep.step, changeWidthIncrement):
+                wallCorrection = WallCorrection.LEFT_TO_RIGHT_WIDTH_INCR
+                changeWidthIncrement += 1
 
             self.__width += changeWidthIncrement
 
             for positionedStep in self.steps:
                 step = positionedStep.step
                 step.size = self.__width
-
-            lastPositionedStep = self.steps[-1]
-            firstPositionedStep = self.steps[0]
 
             self.draw(wallCorrection)
 
@@ -354,17 +399,17 @@ def testLeftToRightWithWidthInc():
     startWidth = 6
     endWidth = 7
 
-    testLeftToRight(endWidth, leftPos, startWidth)
+#    testLeftToRight(endWidth, leftPos, startWidth)
 
     startWidth = 7
     endWidth = 6
 
-    testLeftToRight(endWidth, leftPos, startWidth)
+#    testLeftToRight(endWidth, leftPos, startWidth)
 
     startWidth = 6
     endWidth = 7
 
-    testRightToLeft(endWidth, leftPos, startWidth)
+#    testRightToLeft(endWidth, leftPos, startWidth)
 
     startWidth = 7
     endWidth = 6
