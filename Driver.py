@@ -1,10 +1,13 @@
 import string
 from chemin import *
+import random as r
 
 MAX_ASCII_VALUE = 122
 MIN_ASCII_VALUE =65
-START_WIDTH = 7
-START_POS = 50
+START_WIDTH = 20
+START_POS = 30
+MIN_WIDTH_INC = 2
+MAX_WIDTH_INC = 5
 
 class GeoMap:
     def __init__(self, pathRepresentation):
@@ -29,6 +32,10 @@ class StringGeoMap(GeoMap):
         '''
         #élimine les espaces
         stringRepr = "".join(filter(str.isalpha, stringRepr))
+
+        #append to stringrepr its first char so that when looping on corrsponding direction when changing the segment width
+        #no gap occurs
+        stringRepr = stringRepr + stringRepr[0]
         directionList = []
         
         for i in range(len(stringRepr) - 1):
@@ -83,9 +90,28 @@ class Driver:
                 self.segment.addStep(step)
 
     def drive(self):
-        self.segment.draw()
+        widthInc = self._calcNewWidthInc(1)
+        self.segment.changePosAndWidth(0,START_WIDTH + widthInc)
+        widthInc = self._calcNewWidthInc(widthInc)
+        self.segment.changePosAndWidth(0, START_WIDTH + widthInc)
+        widthInc = self._calcNewWidthInc(widthInc)
+        self.segment.changePosAndWidth(0, START_WIDTH + widthInc)
+        widthInc = self._calcNewWidthInc(widthInc)
+        self.segment.changePosAndWidth(0, START_WIDTH + widthInc)
 
-#driver = Driver(StringGeoMap("Tamara, Walter, Béatrice. Jean-Pierre"))
-driver = Driver(StringGeoMap("Tamara, adadadadad, Walter, Béatrice. Jean-Pierre, adadadadad"))
-driver.drive()
+
+    def _calcNewWidthInc(self, previousWidthInc):
+        widthInc = r.randint(-MAX_WIDTH_INC, MAX_WIDTH_INC)
+        while abs(widthInc) < MIN_WIDTH_INC:
+            widthInc = r.randint(-MAX_WIDTH_INC, MAX_WIDTH_INC)
+        if (previousWidthInc < 0 and widthInc < 0) or (previousWidthInc > 0 and widthInc > 0):
+            widthInc *= -1
+        return widthInc
+
+
+if __name__ == '__main__':
+    #driver = Driver(StringGeoMap("Tamara, Walter, Béatrice. Jean-Pierre"))
+#    driver = Driver(StringGeoMap("Tamara, adadadadad, Walter, Béatrice. Jean-Pierre, adadadadad"))
+    driver = Driver(StringGeoMap("adadadadad, acaeafadad, adadadadad"))
+    driver.drive()
 
