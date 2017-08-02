@@ -259,7 +259,7 @@ class Segment():
         elif wallCorrection == WallCorrection.LEFT_TO_RIGHT_WIDTH_DECR:
             '''
             /       /   9	last step == LeftStep
-             \     \		first step == RightStep
+             \     \	7	first step == RightStep
               \     \
                         if lst step == left et first step == right and ch width incr == -1
             /       /   9	last step == LeftStep
@@ -275,6 +275,7 @@ class Segment():
             filler = self.__filler(firstPositionedStep.offset - 1)
             print(filler + insertedStepLine)
             sleep(self.sleepTime)
+            self.leftPos = self.currPos
 
             for positionedStep in self.steps[1:]:
                 self._drawStep(positionedStep)
@@ -346,8 +347,6 @@ class Segment():
         for i in range(incrementNumber):
             lastPositionedStep = self.steps[-1]
             firstPositionedStep = self.steps[0]
-            rightToLeftWidthDecrWallCorrection = False
-            leftToRightWidthDecrWallCorrection = False
 
             wallCorrection = WallCorrection.NONE
 
@@ -390,7 +389,7 @@ class Segment():
 import random as r
 
 def testLeftToRightWithWidthInc():
-    leftPos = 10
+    leftPos = 30
     '''
     startWidth = 6
     endWidth = 7
@@ -413,28 +412,28 @@ def testLeftToRightWithWidthInc():
     testLeftToRight(endWidth, leftPos, startWidth)
     '''
 ###
-    startWidth = 6
-    endWidth = 8
-
-  #  testRightToLeft(endWidth, leftPos, startWidth)
-
-    startWidth = 7
-    endWidth = 5
+    startWidth = 17
+    endWidth = 9
 
     testRightToLeft(endWidth, leftPos, startWidth)
 
-    startWidth = 5
-    endWidth = 7
+    startWidth = 7
+    endWidth = 19
 
- #   testLeftToRight(endWidth, leftPos, startWidth)
+    testRightToLeft(endWidth, leftPos, startWidth)
+
+    startWidth = 17
+    endWidth = 9
+
+    testLeftToRight(endWidth, leftPos, startWidth)
 
     startWidth = 7
-    endWidth = 5
+    endWidth = 19
 
     testLeftToRight(endWidth, leftPos, startWidth)
 
 def testRightToLeft(endWidth, leftPos, startWidth):
-    print("LeftToRight testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
+    print("RightToLeft testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
 
     seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
     lst = LeftStep()
@@ -481,7 +480,7 @@ def testRightToLeft(endWidth, leftPos, startWidth):
     seg.changePosAndWidth(0, endWidth)
 
 def testLeftToRight(endWidth, leftPos, startWidth):
-    print("RightToLeft testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
+    print("LeftToRight testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
 
     seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
     lst = LeftStep()
