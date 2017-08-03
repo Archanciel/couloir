@@ -65,14 +65,14 @@ class Step:
 			else:
 				s += " "
 
-		if ball.ballX == 0:
+		if ball.ballX <= 0:
 			#ball drawn at left wall --> bounce to right
 			ball.bounceRight()
-		elif ball.ballX == self.size - 1:
+		elif ball.ballX >= self.size - 1:
 			#ball drawn at right wall --> bounce to left
 			ball.bounceLeft()
 		else:
-			ball.move()
+			ball.move() #move the ball in its current direction
 
 		return s
 
