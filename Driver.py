@@ -82,10 +82,11 @@ class Driver:
     def __init__(self, geoMap):
         self.geoMap = geoMap
         self.segment = Segment(START_POS, START_WIDTH, SLEEP_TIME_SEC)
+        ball = Ball("*")
 
         for i in range(self.geoMap.getStepNumber()):
             direction = self.geoMap.getDirection(i)
-            step = Step.createStep(direction.orientation, START_WIDTH)
+            step = Step.createStep(direction.orientation, ball, START_WIDTH)
             for j in range(direction.stepNumber):
                 self.segment.addStep(step)
 
