@@ -96,7 +96,7 @@ class Driver:
         widthInc = self._calcNewWidthInc(widthInc)
         self.segment.changePosAndWidth(0, START_WIDTH + widthInc)
         widthInc = self._calcNewWidthInc(widthInc)
-        self.segment.changePosAndWidth(0, START_WIDTH + widthInc)
+        self.segment.changePosAndWidth(0, START_WIDTH + widthInc)   #buf location !!!
         widthInc = self._calcNewWidthInc(widthInc)
         self.segment.changePosAndWidth(0, START_WIDTH + widthInc)
 
