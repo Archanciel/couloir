@@ -81,12 +81,12 @@ class Direction:
 class Driver:
     def __init__(self, geoMap):
         self.geoMap = geoMap
-        self.segment = Segment(START_POS, START_WIDTH, SLEEP_TIME_SEC)
         ball = Ball("*")
+        self.segment = Segment(START_POS, START_WIDTH, ball, SLEEP_TIME_SEC)
 
         for i in range(self.geoMap.getStepNumber()):
             direction = self.geoMap.getDirection(i)
-            step = Step.createStep(direction.orientation, ball, START_WIDTH)
+            step = Step.createStep(direction.orientation, START_WIDTH)
             for j in range(direction.stepNumber):
                 self.segment.addStep(step)
 
@@ -111,7 +111,7 @@ class Driver:
 
 
 if __name__ == '__main__':
-    #driver = Driver(StringGeoMap("Tamara, Walter, Béatrice. Jean-Pierre"))
+#    driver = Driver(StringGeoMap("Tamara, Walter, Béatrice. Jean-Pierre"))
 #    driver = Driver(StringGeoMap("Tamara, adadadadad, Walter, Béatrice. Jean-Pierre, adadadadad"))
     driver = Driver(StringGeoMap("adadadadad, acaeafadad, adadadadad"))
     driver.drive()

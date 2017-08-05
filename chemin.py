@@ -18,19 +18,19 @@ class WallCorrection(Enum):
 
 class Step:
 	@staticmethod
-	def createStep(stepType, ball, stepSize):
+	def createStep(stepType, stepSize):
 		if stepType == 'r':
-			return LeftStep(ball, stepSize)
+			return LeftStep(stepSize)
 		elif stepType == 'l':
-			return RightStep(ball, stepSize)
+			return RightStep(stepSize)
 		else:
 			raise ValueError("Illegal stepType " + stepType + " encountered")
 
-	def __init__(self, leftWall, rightWall, ball, size = 1):
+	def __init__(self, leftWall, rightWall, size = 1):
 		self.size = size
 		self.leftWall = leftWall
 		self.rightWall = rightWall
-		self.ball = ball
+		self.ball = None
 
 	def getLine(self):
 		return self.leftWall + self.__fillSpaces() + self.rightWall
@@ -57,9 +57,14 @@ class Step:
 
 	def __fillSpaces(self):
 		s = ""
+		ball = self.ball
+
+		#next test fixea a bug occuring when ballX == self.size == 2
+		# if ball.ballX == self.size:
+		# 	# ball drawn at right wall --> bounce to left
+		# 	ball.bounceLeft()
 
 		for i in range(self.size):
-			ball = self.ball
 			if i == ball.ballX:
 				s += ball.ballChar
 			else:
@@ -78,8 +83,8 @@ class Step:
 
 
 class LeftStep(Step):
-	def __init__(self, ball, size = 1):
-		super().__init__('/', '/', ball, size)
+	def __init__(self, size = 1):
+		super().__init__('/', '/', size)
 
 	def calculateOffset(self, previousStep):
 		if previousStep.__class__.__name__ == RightStep.__name__:
@@ -128,8 +133,8 @@ class LeftStep(Step):
 			return False
 
 class RightStep(Step):
-	def __init__(self, ball, size = 1):
-		super().__init__("\\", "\\", ball, size)
+	def __init__(self, size = 1):
+		super().__init__("\\", "\\", size)
 
 	def calculateOffset(self, previousStep):
 		if previousStep.__class__.__name__ == RightStep.__name__:
@@ -227,14 +232,16 @@ class Ball:
 
 
 class Segment():
-	def __init__(self, leftPos, width, sleepTime = 0.1):
+	def __init__(self, leftPos, width, ball, sleepTime = 0.1):
 		self.leftPos = leftPos
 		self.steps = []
 		self.width = width
+		self.ball = ball
 		self.sleepTime = sleepTime
 
 	def addStep(self, step):
 		step.size = self.width
+		step.ball = self.ball
 
 		if len(self.steps) > 0:
 			previousPositionedStep = self.steps[-1]
@@ -262,10 +269,16 @@ class Segment():
 
 			#repl first '/' by ' \'
 			filler = self.__filler(firstPositionedStep.offset + 1)
-			firstStepWidthChangedLeftWall = firstStep.getLine().replace('/', '\\',1)
+			firstStepLine = firstStep.getLine()
+			firstStepLine = firstStep.getLine()
+			firstStepWithChangedLeftWall = firstStepLine.replace('/', '\\', 1)
 
 			#and now shift right wall
-			firstStepWidthChangedLeftAndRightWall = self._replace_last(firstStepWidthChangedLeftWall, '/', ' /')
+			if self.width == 3:
+				#not possible to do better !
+				firstStepWidthChangedLeftAndRightWall = self._replace_last(firstStepWithChangedLeftWall, '/', '|')
+			else:
+				firstStepWidthChangedLeftAndRightWall = self._replace_last(firstStepWithChangedLeftWall, '/', ' /')
 
 			print(filler + firstStepWidthChangedLeftAndRightWall)
 			sleep(self.sleepTime)
@@ -289,8 +302,22 @@ class Segment():
 
 			#repl first ' /' by '\'
 			filler = self.__filler(firstPositionedStep.offset)
-			firstStepWidthChangedRightWall = firstStep.getLine().replace(' /', '\\')
+			firstStepLine = firstStep.getLine()
+			firstStepWidthChangedRightWall = ''
+			ballChar = self.ball.ballChar
+			ballCharAgainstRightWall_1 = ballChar + '/'
+			ballCharAgainstRightWall_2 = ballChar + ' /'
 
+			if ballCharAgainstRightWall_1 in firstStepLine:
+				firstStepWidthChangedRightWall = firstStepLine.replace(ballCharAgainstRightWall_1, ballChar + '\\')
+#				print("DEBUG - firstStepWidthChangedRightWall = firstStepLine.replace(ballCharAgainstRightWall_1, ballChar + '\\')")
+			elif  ballCharAgainstRightWall_2 in firstStepLine:
+				firstStepWidthChangedRightWall = firstStepLine.replace(ballCharAgainstRightWall_2, ballChar + '\\')
+#				print("DEBUG - firstStepWidthChangedRightWall = firstStepLine.replace(ballCharAgainstRightWall_2, ballChar + '\\')")
+			else:
+				firstStepWidthChangedRightWall = firstStepLine.replace(' /', '\\')
+
+			#firstStepWidthChangedRightWall = firstStepLine.replace(' /', '\\')
 			print(filler + firstStepWidthChangedRightWall)
 			sleep(self.sleepTime)
 
@@ -405,6 +432,9 @@ class Segment():
 
 			self.__width += changeWidthIncrement
 
+			if self.__width < MIN_SEGMENT_WIDTH:
+				self.__width = MIN_SEGMENT_WIDTH
+
 			for positionedStep in self.steps:
 				step = positionedStep.step
 				step.size = self.__width
@@ -475,8 +505,8 @@ def testLeftToRightWithWidthInc():
 def testRightToLeft(endWidth, leftPos, startWidth):
 	print("RightToLeft testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
 
-	seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
 	ball = Ball('*')
+	seg = Segment(leftPos, startWidth, ball, SLEEP_TIME_SEC)
 	lst = LeftStep(ball)
 	rst = RightStep(ball)
 
@@ -523,8 +553,8 @@ def testRightToLeft(endWidth, leftPos, startWidth):
 def testLeftToRight(endWidth, leftPos, startWidth):
 	print("LeftToRight testing. Start width: {}, end width: {}\n".format(startWidth, endWidth))
 
-	seg = Segment(leftPos, startWidth, SLEEP_TIME_SEC)
 	ball = Ball('*')
+	seg = Segment(leftPos, startWidth, ball, SLEEP_TIME_SEC)
 	lst = LeftStep(ball)
 	rst = RightStep(ball)
 
